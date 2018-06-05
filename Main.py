@@ -1,15 +1,13 @@
-import numpy as np
+
 import pandas as pd
 import intrinio
-import time
-from dateutil import relativedelta
-from datetime import datetime
 
 from PlotData import PlotData
 from LiveData import LiveData
 from Util import Util
 from RetainedEarningsROIC import RetainedEarningsROIC
 from GreenblattROIC import GreenblattROIC
+from DividendsBuyBacks import DividendsBuyBacks
 
 #configurations
 intrinio.client.username = 'f51ed99033fc52e3f1743b39c8d43ca6'
@@ -19,6 +17,7 @@ liveData = LiveData()
 plotData = PlotData(4)
 retainedEarningsROIC = RetainedEarningsROIC()
 greenblattROIC = GreenblattROIC()
+dividendsBuyBacks = DividendsBuyBacks()
 util = Util()
 
 def dump(df):
@@ -118,6 +117,8 @@ last_price = pricesData.loc[:, "close"].head(1)
 
 greenblattROIC.calculateGreenblattROIC(calculationsData, incomeStmtData, balanceSheetData)
 retainedEarningsROIC.calcIncrementalCapitalROIC(incomeStmtData, balanceSheetData, cashFlowData, last_price)
+
+dividendsBuyBacks.calcDividendBuyBacks(incomeStmtData, balanceSheetData, cashFlowData)
 
 last_eps = incomeStmtData.loc[:, "dilutedeps"].iloc[::-1].head(1)
 last_bvps = calculationsData.loc[:, "bookvaluepershare"].iloc[::-1].head(1)
