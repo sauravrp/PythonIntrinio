@@ -1,4 +1,3 @@
-import numpy as np
 import pandas as pd
 
 from Util import Util
@@ -39,7 +38,7 @@ class DividendsBuyBacks(object):
 
 
 
-        print "Return as percent of income"
+        print "\nReturn as percent of income"
         print "Year            Div     StockBuyBack    Total %"
         for index, row in retainedData.iterrows():
             print "{}         {:5,.2f}%     {:5,.2f}%          {:5,.2f}%     ".format(index,
@@ -56,7 +55,7 @@ class DividendsBuyBacks(object):
                                                                                                'repurchaseofcommonequity'] * 100)) /
                                                                                       row['netincometocommon'])
 
-        print "Year       Dividend per share"
+        print "\nYear       Dividend per share"
         for index, row in retainedData.iterrows():
             print "{}         ${:0,.2f}".format(index, row['cashdividendspershare'])
         print "Total Dividend payout of ${:0,.2f}".format(retainedData['cashdividendspershare'].sum())

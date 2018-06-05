@@ -2,6 +2,7 @@
 import pandas as pd
 import intrinio
 
+from Globals import TICKER, TEN_YEAR_TREASURY
 from PlotData import PlotData
 from LiveData import LiveData
 from Util import Util
@@ -85,10 +86,9 @@ def calcBVPS(incomeStmtData, calculationsData) :
     print "------------------------------------------------------------------------------\n"
 
 
-ticker = "GOOG" #raw_input("Enter Ticker?")
-ten_year_treasury = 2.902
 
-data = liveData.getData(ticker)
+
+data = liveData.getData(TICKER)
 pricesData = data["prices"]
 incomeStmtData = data["income_statement"]
 balanceSheetData = data["balance_sheet"]
@@ -115,7 +115,9 @@ calcBVPS(incomeStmtData, calculationsData)
 # get the latest
 last_price = pricesData.loc[:, "close"].head(1)
 
-greenblattROIC.calculateGreenblattROIC(calculationsData, incomeStmtData, balanceSheetData)
+if 'nwc' in calculationsData.columns:
+    greenblattROIC.calculateGreenblattROIC(calculationsData, incomeStmtData, balanceSheetData)
+
 retainedEarningsROIC.calcIncrementalCapitalROIC(incomeStmtData, balanceSheetData, cashFlowData, last_price)
 
 dividendsBuyBacks.calcDividendBuyBacks(incomeStmtData, balanceSheetData, cashFlowData)
@@ -127,7 +129,7 @@ print "last_price: $%.2f" % (last_price.iloc[0])
 print "last_eps: $%.2f" % (last_eps.iloc[0])
 print "last book value per share: $%.2f" % (last_bvps.iloc[0])
 
-print "Long term treasury is %s%%" % (str(ten_year_treasury))
+print "Long term treasury is %s%%" % (str(TEN_YEAR_TREASURY))
 print "Paying $%.2f a share results in %.2f%% return" % (last_price.iloc[0], float(last_eps.iloc[0]/last_price.iloc[0]) * 100)
 
 
