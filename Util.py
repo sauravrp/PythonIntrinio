@@ -37,15 +37,32 @@ class Util(object):
         periods = float(periods)
         return (last / first) ** (1 / periods) - 1
 
-    def pct_change_stats(self, title, df, col):
-        print "\n-----------------------------{}-------------------------".format(title)
-        print "------------------ Value --------------- (%) Change----------"
-        series = df.loc[:, col]
+    def pct_change_stats(self, title, series):
+        print "\n-----------------------{}-------------------------".format(title)
+        print "------------------ Value ----------------- (%) Change----------"
         for index, value in series.iteritems():
-            print "{}         ${:,.2f}      {:,.2f}%".format(index, value,  series.pct_change()[index]*100)
+            print "{}         ${:,.2f}           {:,.2f}%".format(index, value,  series.pct_change()[index]*100)
 
         print "\n{} year average % growth = {:,.2f}%".format(len(series.index) - 1, series.pct_change().mean()*100)
         if len(series) >= 5:
             print "{} year average % growth = {:,.2f}%".format(5, series.pct_change().tail(5).mean() * 100)
         print "last year average % growth = {:,.2f}%".format(series.pct_change().tail(1).iloc[0] * 100)
-        print "-------------------------------------------------------\n"
+
+        cagr_growth_rate = self.CAGR(series.iloc[0],
+                                     series.iloc[::-1].iloc[0],
+                                    len(series.index))
+
+        print "CAGR Growth Rate over {} years is {:0,.2f}%".format(len(series.index), cagr_growth_rate * 100)
+        print "-------------------------------------------------------------\n"
+
+    def average_stats(self, title, series):
+        print "\n-----------------------{}-------------------------".format(title)
+        print "------------------ Value -------------------"
+        for index, value in series.iteritems():
+            print "{}         {:,.2f}".format(index, value)
+
+        print "\n{} year average = {:,.2f}%".format(len(series.index) - 1, series.mean())
+        if len(series) >= 5:
+            print "{} year average = {:,.2f}%".format(5, series.tail(5).mean() )
+        print "last year = {:,.2f}%".format(series.tail(1).iloc[0])
+        print "-------------------------------------------------------------\n"

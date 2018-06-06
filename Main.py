@@ -33,34 +33,28 @@ def plotGraph(data, col, title, xlabel, ylabel) :
     plotData.plot(data.loc[:, col], title, xlabel, ylabel)
 
 
-def calcROE(calculationsData):
-    print "--------------- ROE data -----------------------------------------------------"
-    print "Year        ROE"
-    for index, row in calculationsData.iterrows():
-        print "%s        %.2f%%" % (index, row['roe'] * 100)
+#
+# def calcEPS(incomeStmtData, calculationsData) :
+#     print "--------------- EPS data -------------------------------------------------"
+#     epsData = pd.concat([incomeStmtData.loc[:, 'basiceps'],
+#                          incomeStmtData.loc[:, 'dilutedeps'],
+#                          calculationsData.loc[:, 'epsgrowth'] * 100], axis=1)
+#
+#     print "Year      basiceps      dilutedeps        epsgrowth"
+#     for index, row in epsData.iterrows():
+#         print "%s        $%4.2f         $%4.2f             %4.2f%%" % (
+#         index, row['basiceps'], row['dilutedeps'], row['epsgrowth'])
+#
+#
+#     eps_growth_rate = util.CAGR(incomeStmtData.loc[:, 'dilutedeps'].iloc[0],
+#               incomeStmtData.loc[:, "dilutedeps"].iloc[::-1].iloc[0],
+#               len(incomeStmtData.loc[:, 'dilutedeps'].index))
+#
+#     print "EPS Growth Rate is {:0,.2f}%".format(eps_growth_rate*100)
+#
+#     print "--------------------------------------------------------------------------"
 
-    print "Average ROE: %.2f%%" % (calculationsData.loc[:, "roe"].mean() * 100)
-    print "------------------------------------------------------------------------------\n"
 
-def calcEPS(incomeStmtData, calculationsData) :
-    print "--------------- EPS data -------------------------------------------------"
-    epsData = pd.concat([incomeStmtData.loc[:, 'basiceps'],
-                         incomeStmtData.loc[:, 'dilutedeps'],
-                         calculationsData.loc[:, 'epsgrowth'] * 100], axis=1)
-
-    print "Year      basiceps      dilutedeps        epsgrowth"
-    for index, row in epsData.iterrows():
-        print "%s        $%4.2f         $%4.2f             %4.2f%%" % (
-        index, row['basiceps'], row['dilutedeps'], row['epsgrowth'])
-
-
-    eps_growth_rate = util.CAGR(incomeStmtData.loc[:, 'dilutedeps'].iloc[0],
-              incomeStmtData.loc[:, "dilutedeps"].iloc[::-1].iloc[0],
-              len(incomeStmtData.loc[:, 'dilutedeps'].index))
-
-    print "EPS Growth Rate is {:0,.2f}%".format(eps_growth_rate*100)
-
-    print "--------------------------------------------------------------------------"
 
 def calcBVPS(incomeStmtData, calculationsData) :
     # Calculate Retained earnings per share
@@ -89,7 +83,7 @@ def calcBVPS(incomeStmtData, calculationsData) :
                                cumulativeData.loc[:, "bookvalue"].iloc[::-1].iloc[0],
                                  len(cumulativeData.loc[:, 'bookvalue'].index))
 
-    util.pct_change_stats("Book Value", cumulativeData, 'bookvalue')
+    util.pct_change_stats("Book Value", cumulativeData.loc[:,'bookvalue'])
 
     print "Book Value Per Share Growth Rate is {:0,.2f}%".format(bvps_growth_rate * 100)
     print "Book Value Growth Rate is {:0,.2f}%".format(bv_growth_rate * 100)
@@ -121,8 +115,11 @@ incomeStmtData.loc[:, 'cashdividendspershare'] = incomeStmtData.loc[:, 'cashdivi
 cashFlowData.loc[:, 'paymentofdividends'] = cashFlowData.loc[:, 'paymentofdividends'].fillna(0)
 cashFlowData.loc[:, 'repurchaseofcommonequity'] = cashFlowData.loc[:, 'repurchaseofcommonequity'].fillna(0)
 
-calcROE(calculationsData)
-calcEPS(incomeStmtData, calculationsData)
+
+util.average_stats("ROE", calculationsData.loc[:, "roe"] * 100)
+util.pct_change_stats("Diluted EPS", incomeStmtData.loc[:,'dilutedeps'])
+
+# calcEPS(incomeStmtData, calculationsData)
 calcBVPS(incomeStmtData, calculationsData)
 
 if 'nwc' in calculationsData.columns:
@@ -160,10 +157,6 @@ priceToEarnings.calcPE_Ratios(calculationsData)
 #plotData.plot(calculationsData.loc[:, ['roe']] * 100,  "Return on Equity", "%", "Years")
 #plotData.show()
 
-
-
-# things to do
-# compounded rate of price
 
 
 
