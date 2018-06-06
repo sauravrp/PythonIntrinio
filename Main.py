@@ -1,8 +1,9 @@
 
 import pandas as pd
 import intrinio
+import numpy as np
 
-from Globals import TICKER, TEN_YEAR_TREASURY
+from Globals import TICKER, TEN_YEAR_TREASURY, DISCOUNT_RATE, STANDARD_PERIOD_PV
 from PlotData import PlotData
 from LiveData import LiveData
 from Util import Util
@@ -10,6 +11,7 @@ from RetainedEarningsROIC import RetainedEarningsROIC
 from GreenblattROIC import GreenblattROIC
 from DividendsBuyBacks import DividendsBuyBacks
 from SharePrice import SharePrice
+
 
 #configurations
 intrinio.client.username = 'f51ed99033fc52e3f1743b39c8d43ca6'
@@ -23,15 +25,8 @@ dividendsBuyBacks = DividendsBuyBacks()
 sharePrice = SharePrice()
 util = Util()
 
-def dump(df):
-    with pd.option_context('display.max_rows', None, 'display.max_columns', 3):
-        print(df)
-
 def plotGraph(data, col, title, xlabel, ylabel) :
     plotData.plot(data.loc[:, col], title, xlabel, ylabel)
-
-
-
 
 
 data = liveData.getData(TICKER)
@@ -106,13 +101,32 @@ util.pct_change_stats("Share Price with dividend", combinedData.loc[:, 'adj_spli
 
 last_eps = incomeStmtData.loc[:, "dilutedeps"].iloc[::-1].head(1)
 last_bvps = calculationsData.loc[:, "bookvaluepershare"].iloc[::-1].head(1)
-last_price = yearlyPrices.loc[:, 'adj_split_close'].head(1)
+last_price = yearlyPrices.loc[:, 'adj_split_close'].tail(1)
 print "last_price: $%.2f" % (last_price.iloc[0])
 print "last_eps: $%.2f" % (last_eps.iloc[0])
 print "last book value per share: $%.2f" % (last_bvps.iloc[0])
 
-print "Long term treasury is %s%%" % (str(TEN_YEAR_TREASURY))
+print "\nLong term treasury is %s%%" % (str(TEN_YEAR_TREASURY))
 print "Paying $%.2f a share results in %.2f%% return" % (last_price.iloc[0], float(last_eps.iloc[0]/last_price.iloc[0]) * 100)
+
+# Gather Input Parameters
+est_growth_rate = float(raw_input("Enter estimated growth rate? "))
+est_future_pe = int(raw_input("Enter future P/E? "))
+discount_rate = raw_input("Enter discount rate? ")
+if discount_rate == "":
+    discount_rate = float(DISCOUNT_RATE)
+    print "\nUsing default discount rate of {:,.2f}%".format(discount_rate)
+else:
+    discount_rate = float(discount_rate)
+
+# Estimate Future eps
+future_eps = np.fv(rate=float(est_growth_rate/100), nper=int(STANDARD_PERIOD_PV), pmt=0, pv=last_eps.iloc[0]) * -1
+future_share_value = future_eps * est_future_pe
+print "\nFuture eps is ${:,.2f}, future share value at PE of {} is ${:,.2f}".format(future_eps, est_future_pe, future_share_value)
+
+cur_price_to_pay = np.pv(rate=float(discount_rate/100), nper=int(STANDARD_PERIOD_PV), pmt=0, fv=future_share_value) * -1
+print "Discounting at {:,.2f}% rate, current fair value is ${:,.2f}".format(discount_rate, cur_price_to_pay)
+
 
 
 

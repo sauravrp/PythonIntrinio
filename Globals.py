@@ -1,9 +1,11 @@
 
-TICKER = "FB" #raw_input("Enter Ticker?")
+TICKER = "WFC" #raw_input("Enter Ticker?")
 TEN_YEAR_TREASURY = 2.902
 PRICES_PULL_START_DATE = "2008-01-01" # pulled yearly here
 DEBUG = True
 THIS_YEAR=2018
+DISCOUNT_RATE=float(15)
+STANDARD_PERIOD_PV=10
 
 
 
