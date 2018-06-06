@@ -36,3 +36,16 @@ class Util(object):
     def CAGR(self, first, last, periods):
         periods = float(periods)
         return (last / first) ** (1 / periods) - 1
+
+    def pct_change_stats(self, title, df, col):
+        print "\n-----------------------------{}-------------------------".format(title)
+        print "------------------ Value --------------- (%) Change----------"
+        series = df.loc[:, col]
+        for index, value in series.iteritems():
+            print "{}         ${:,.2f}      {:,.2f}%".format(index, value,  series.pct_change()[index]*100)
+
+        print "\n{} year average % growth = {:,.2f}%".format(len(series.index) - 1, series.pct_change().mean()*100)
+        if len(series) >= 5:
+            print "{} year average % growth = {:,.2f}%".format(5, series.pct_change().tail(5).mean() * 100)
+        print "last year average % growth = {:,.2f}%".format(series.pct_change().tail(1).iloc[0] * 100)
+        print "-------------------------------------------------------\n"

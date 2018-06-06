@@ -10,6 +10,7 @@ from RetainedEarningsROIC import RetainedEarningsROIC
 from GreenblattROIC import GreenblattROIC
 from DividendsBuyBacks import DividendsBuyBacks
 from SharePrice import SharePrice
+from PriceToEarnings import PriceToEarnings
 
 #configurations
 intrinio.client.username = 'f51ed99033fc52e3f1743b39c8d43ca6'
@@ -21,6 +22,7 @@ retainedEarningsROIC = RetainedEarningsROIC()
 greenblattROIC = GreenblattROIC()
 dividendsBuyBacks = DividendsBuyBacks()
 sharePrice = SharePrice()
+priceToEarnings = PriceToEarnings()
 util = Util()
 
 def dump(df):
@@ -87,6 +89,8 @@ def calcBVPS(incomeStmtData, calculationsData) :
                                cumulativeData.loc[:, "bookvalue"].iloc[::-1].iloc[0],
                                  len(cumulativeData.loc[:, 'bookvalue'].index))
 
+    util.pct_change_stats("Book Value", cumulativeData, 'bookvalue')
+
     print "Book Value Per Share Growth Rate is {:0,.2f}%".format(bvps_growth_rate * 100)
     print "Book Value Growth Rate is {:0,.2f}%".format(bv_growth_rate * 100)
 
@@ -141,6 +145,7 @@ print "last book value per share: $%.2f" % (last_bvps.iloc[0])
 print "Long term treasury is %s%%" % (str(TEN_YEAR_TREASURY))
 print "Paying $%.2f a share results in %.2f%% return" % (last_price.iloc[0], float(last_eps.iloc[0]/last_price.iloc[0]) * 100)
 
+priceToEarnings.calcPE_Ratios(calculationsData)
 
 
 #plotGraph(incomeStatementData, ["dilutedeps", "basiceps"], "EPS", "$", "Years")
