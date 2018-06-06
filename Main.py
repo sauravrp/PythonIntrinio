@@ -9,7 +9,7 @@ from Util import Util
 from RetainedEarningsROIC import RetainedEarningsROIC
 from GreenblattROIC import GreenblattROIC
 from DividendsBuyBacks import DividendsBuyBacks
-from HandleStockSplit import HandleStockSplit
+from SharePrice import SharePrice
 
 #configurations
 intrinio.client.username = 'f51ed99033fc52e3f1743b39c8d43ca6'
@@ -20,7 +20,7 @@ plotData = PlotData(4)
 retainedEarningsROIC = RetainedEarningsROIC()
 greenblattROIC = GreenblattROIC()
 dividendsBuyBacks = DividendsBuyBacks()
-handleStockSplit = HandleStockSplit()
+sharePrice = SharePrice()
 util = Util()
 
 def dump(df):
@@ -102,7 +102,7 @@ cashFlowData = data["cash_flow_statement"]
 calculationsData = data["calculations"]
 yearlyPrices = data["yearlyprices"]
 
-yearlyPrices = handleStockSplit.adjustStockSplits(yearlyPrices)
+yearlyPrices = sharePrice.adjustStockSplits(yearlyPrices)
 
 #dump(incomeStmtData)
 #print incomeStmtData.keys()
@@ -131,23 +131,9 @@ dividendsBuyBacks.calcDividendBuyBacks(incomeStmtData, balanceSheetData, cashFlo
 last_eps = incomeStmtData.loc[:, "dilutedeps"].iloc[::-1].head(1)
 last_bvps = calculationsData.loc[:, "bookvaluepershare"].iloc[::-1].head(1)
 
-# get the latest
+sharePrice.calcSharePriceGrowth(yearlyPrices, incomeStmtData)
+
 last_price = yearlyPrices.loc[:, 'adj_split_close'].head(1)
-first_price = yearlyPrices.loc[:, "adj_split_close"].iloc[::-1].head(1)
-
-share_price_growth_rate = util.CAGR( yearlyPrices.loc[:, "adj_split_close"].iloc[::-1].iloc[0],
-                                     yearlyPrices.loc[:, 'adj_split_close'].iloc[0],
-                                    len(yearlyPrices.loc[:, 'adj_split_close'].index))
-
-
-print "Share Price grew from ${:0,.2f} in {} to ${:0,.2f} in {}".format(first_price.iloc[0],
-                                                                        first_price.index[0],
-                                                                        last_price.iloc[0],
-                                                                        last_price.index[0])
-print "Share Price Growth Rate is {:0,.2f}% over {:0,d} years".format(share_price_growth_rate * 100, len(yearlyPrices.loc[:, 'close'].index))
-
-
-
 print "last_price: $%.2f" % (last_price.iloc[0])
 print "last_eps: $%.2f" % (last_eps.iloc[0])
 print "last book value per share: $%.2f" % (last_bvps.iloc[0])

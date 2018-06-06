@@ -30,9 +30,9 @@ class DividendsBuyBacks(object):
                                   incomeStmtData.loc[:, 'dilutedeps'],
                                   incomeStmtData.loc[:, 'weightedavedilutedsharesos'],
                                   retainedearningspershare,
-                                  incomeStmtData["cashdividendspershare"],
-                                  cashFlowData["paymentofdividends"],
-                                  cashFlowData['repurchaseofcommonequity']], axis=1)
+                                  incomeStmtData.loc[:, "cashdividendspershare"],
+                                  cashFlowData.loc[:, "paymentofdividends"],
+                                  cashFlowData.loc[:, 'repurchaseofcommonequity']], axis=1)
 
         retainedData = self.util.dropNaInAllColumns(retainedData)
 
