@@ -55,11 +55,6 @@ cashFlowData.loc[:, 'paymentofdividends'] = cashFlowData.loc[:, 'paymentofdivide
 cashFlowData.loc[:, 'repurchaseofcommonequity'] = cashFlowData.loc[:, 'repurchaseofcommonequity'].fillna(0)
 
 
-util.average_stats("ROE", calculationsData.loc[:, "roe"] * 100)
-util.pct_change_stats("Diluted EPS", incomeStmtData.loc[:,'dilutedeps'])
-util.pct_change_stats("Book Value", balanceSheetData.loc[:, 'totalcommonequity'])
-util.average_stats("P/E ratio", calculationsData.loc[:, 'pricetoearnings'])
-
 # ROIC calculations
 if 'nwc' in calculationsData.columns:
     greenblattROIC.calculateGreenblattROIC(calculationsData, incomeStmtData, balanceSheetData)
@@ -67,9 +62,35 @@ retainedEarningsROIC.calcIncrementalCapitalROIC(incomeStmtData, balanceSheetData
 # dividend calculations
 dividendsBuyBacks.calcDividendBuyBacks(incomeStmtData, balanceSheetData, cashFlowData)
 
-last_eps = incomeStmtData.loc[:, "dilutedeps"].iloc[::-1].head(1)
-last_bvps = calculationsData.loc[:, "bookvaluepershare"].iloc[::-1].head(1)
 
+#
+# Prioriy of growth rates:
+# ROIC (most important)
+# 1. Equity growth
+# 2. EPS growth
+# 3. Sales (or gross profit) growth
+# 4. Cash flow growth
+
+# Equity Growth
+util.pct_change_stats("Book Value", balanceSheetData.loc[:, 'totalcommonequity'])
+util.pct_change_stats("Book Value Per Share", calculationsData.loc[:, 'bookvaluepershare'])
+
+# EPS growth
+util.pct_change_stats("Net Income Available to common",  incomeStmtData.loc[:, 'netincometocommon'])
+util.pct_change_stats("Diluted EPS", incomeStmtData.loc[:,'dilutedeps'])
+
+# Sales Growth
+util.pct_change_stats("Total Revenue", incomeStmtData.loc[:, 'totalrevenue'])
+
+# Cash Flow Growth
+util.pct_change_stats("Free Cash Flow", calculationsData.loc[:, 'freecashflow'])
+
+util.average_stats("ROE", calculationsData.loc[:, "roe"] * 100)
+util.average_stats("ROA", calculationsData.loc[:, "roa"] * 100)
+util.average_stats("P/E ratio", calculationsData.loc[:, 'pricetoearnings'])
+
+# Share price Count
+util.pct_change_stats("Weighted Average Diluted Share Outstanding", incomeStmtData.loc[:, 'weightedavedilutedsharesos'])
 # Share Price stats
 util.pct_change_stats("Share Price", yearlyPrices.loc[:, 'adj_split_close'])
 
@@ -81,6 +102,10 @@ combinedData.loc[:, 'cashdividendpershare'] = combinedData.loc[:,'cashdividendsp
 combinedData = util.dropNaInAllColumns(combinedData)
 util.pct_change_stats("Share Price with dividend", combinedData.loc[:, 'adj_split_close'] + combinedData.loc[:, 'cashdividendspershare'])
 
+
+
+last_eps = incomeStmtData.loc[:, "dilutedeps"].iloc[::-1].head(1)
+last_bvps = calculationsData.loc[:, "bookvaluepershare"].iloc[::-1].head(1)
 last_price = yearlyPrices.loc[:, 'adj_split_close'].head(1)
 print "last_price: $%.2f" % (last_price.iloc[0])
 print "last_eps: $%.2f" % (last_eps.iloc[0])

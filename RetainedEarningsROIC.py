@@ -10,7 +10,7 @@ class RetainedEarningsROIC(object):
     # questions:
     # how does cash buy back figure into retained earnings?
     def calcIncrementalCapitalROIC(self, incomeStmtData, balanceSheetData, cashFlowData):
-        print "--------------- Incremental Capital ROIC based on Retained Earnings --------------------------------------------"
+        print "\n--------------- Incremental Capital ROIC based on Retained Earnings --------------------------------------------"
 
         # Calculate Retained earnings per share
         retainedearningspershare = balanceSheetData.loc[:, "retainedearnings"] / incomeStmtData.loc[:,

@@ -8,7 +8,7 @@ class GreenblattROIC(object):
         pass
 
     def calculateGreenblattROIC(self, calculationsData, incomeStatementData, balanceSheetData):
-        print "------------------------ ROIC based on Greenblatt --------------------------------------------"
+        print "\n------------------------ ROIC based on Greenblatt --------------------------------------------"
 
         investedCapital = calculationsData.loc[:, 'nwc'] + balanceSheetData.loc[:, 'netppe'] + (
                     balanceSheetData.loc[:, 'cashandequivalents'] - (0.01 * incomeStatementData["totalrevenue"]))
@@ -33,13 +33,7 @@ class GreenblattROIC(object):
                                                                                  row.loc['investedcapital'],
                                                                                  row.loc['roic'])
 
-        print "Average ROIC: %.2f%%" % (combinedData.loc[:, "roic"].mean())
-
-        income_growth_rate = self.util.CAGR(combinedData.loc[:, 'netincometocommon'].iloc[0],
-                                            combinedData.loc[:, "netincometocommon"].iloc[::-1].iloc[0],
-                                            len(combinedData.loc[:, 'netincometocommon'].index))
-
-        print "Income Growth Rate is {:0,.2f}%".format(income_growth_rate * 100)
+        self.util.average_multiyear_stats(combinedData.loc[:, "roic"])
 
         diffCapitalInvested = self.util.calculateDelta(combinedData['investedcapital'])
         diffEBIT = self.util.calculateDelta(calculationsData.loc[:, 'ebit'])
