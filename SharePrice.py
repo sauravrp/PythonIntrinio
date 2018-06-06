@@ -39,42 +39,42 @@ class SharePrice(object) :
          #print newYearlySeries
         return pd.DataFrame(data={newYearlySeries.name : newYearlySeries.values }, index=newYearlySeries.index)
 
-    def calcSharePriceGrowth(self, yearlyPrices, incomeStmtData):
-
-        # combine this data
-        combinedData = pd.concat([yearlyPrices['adj_split_close'],
-                                  incomeStmtData.loc[:, 'cashdividendspershare']],
-                                   axis=1)
-        combinedData = self.util.dropNaInAllColumns(combinedData)
-
-        # get the latest
-        first_price = combinedData.loc[:, 'adj_split_close'].head(1)
-        last_price = combinedData.loc[:, "adj_split_close"].iloc[::-1].head(1)
-
-        share_price_growth_rate = self.util.CAGR(first_price.iloc[0],
-                                                last_price.iloc[0],
-                                                 len(combinedData.loc[:, 'adj_split_close'].index))
-
-        totalDividend = combinedData.loc[:, 'cashdividendspershare'].sum()
-
-        with_div_share_price_growth_rate = self.util.CAGR(first_price.iloc[0],
-                                                 last_price.iloc[0] + totalDividend,
-                                                 len(combinedData.loc[:, 'adj_split_close'].index))
-
-        print "Share Price grew from ${:0,.2f} in {} to ${:0,.2f} in {}".format(first_price.iloc[0],
-                                                                                first_price.index[0],
-                                                                                last_price.iloc[0],
-                                                                                last_price.index[0])
-        print "Share Price Growth Rate is {:0,.2f}% over {:0,d} years".format(share_price_growth_rate * 100,
-                                                                              len(combinedData.loc[:, 'adj_split_close'].index))
-
-
-        print "Total Dividend paid out was ${:0,.2f}".format(totalDividend)
-        print "With Dividend, Share Price return was from ${:0,.2f} in {} to ${:0,.2f} in {}".format(first_price.iloc[0],
-                                                                            first_price.index[0],
-                                                                            last_price.iloc[0] + combinedData.loc[:, 'cashdividendspershare'].sum(),
-                                                                            last_price.index[0])
-
-        print "With Dividend, Share Price Growth Rate is {:0,.2f}% over {:0,d} years".format(with_div_share_price_growth_rate * 100,
-                                                                          len(combinedData.loc[:,
-                                                                              'adj_split_close'].index))
+    # def calcSharePriceGrowth(self, yearlyPrices, incomeStmtData):
+    #
+    #     # combine this data
+    #     combinedData = pd.concat([yearlyPrices['adj_split_close'],
+    #                               incomeStmtData.loc[:, 'cashdividendspershare']],
+    #                                axis=1)
+    #     combinedData = self.util.dropNaInAllColumns(combinedData)
+    #
+    #     # get the latest
+    #     first_price = combinedData.loc[:, 'adj_split_close'].head(1)
+    #     last_price = combinedData.loc[:, "adj_split_close"].iloc[::-1].head(1)
+    #     print combinedData
+    #     share_price_growth_rate = self.util.CAGR(first_price.iloc[0],
+    #                                             last_price.iloc[0],
+    #                                              len(combinedData.loc[:, 'adj_split_close'].index))
+    #
+    #     totalDividend = combinedData.loc[:, 'cashdividendspershare'].sum()
+    #
+    #     with_div_share_price_growth_rate = self.util.CAGR(first_price.iloc[0],
+    #                                              last_price.iloc[0] + totalDividend,
+    #                                              len(combinedData.loc[:, 'adj_split_close'].index))
+    #
+    #     print "Share Price grew from ${:0,.2f} in {} to ${:0,.2f} in {}".format(first_price.iloc[0],
+    #                                                                             first_price.index[0],
+    #                                                                             last_price.iloc[0],
+    #                                                                             last_price.index[0])
+    #     print "Share Price Growth Rate is {:0,.2f}% over {:0,d} years".format(share_price_growth_rate * 100,
+    #                                                                           len(combinedData.loc[:, 'adj_split_close'].index))
+    #
+    #
+    #     print "Total Dividend paid out was ${:0,.2f}".format(totalDividend)
+    #     print "With Dividend, Share Price return was from ${:0,.2f} in {} to ${:0,.2f} in {}".format(first_price.iloc[0],
+    #                                                                         first_price.index[0],
+    #                                                                         last_price.iloc[0] + combinedData.loc[:, 'cashdividendspershare'].sum(),
+    #                                                                         last_price.index[0])
+    #
+    #     print "With Dividend, Share Price Growth Rate is {:0,.2f}% over {:0,d} years".format(with_div_share_price_growth_rate * 100,
+    #                                                                       len(combinedData.loc[:,
+    #                                                                           'adj_split_close'].index))
