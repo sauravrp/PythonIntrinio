@@ -28,10 +28,10 @@ class GreenblattROIC(object):
         print "Year                 EBIT                    NetIncome             InvestedCapital             ROIC"
         for index, row in combinedData.iterrows():
             print "{}         ${:20,.2f}      ${:20,.2f}    ${:20,.2f}      {:5,.2f}%".format(index,
-                                                                                 row['ebit'],
-                                                                                 row['netincometocommon'],
-                                                                                 row['investedcapital'],
-                                                                                 row['roic'])
+                                                                                 row.loc['ebit'],
+                                                                                 row.loc['netincometocommon'],
+                                                                                 row.loc['investedcapital'],
+                                                                                 row.loc['roic'])
 
         print "Average ROIC: %.2f%%" % (combinedData.loc[:, "roic"].mean())
 

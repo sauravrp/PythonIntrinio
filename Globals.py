@@ -1,3 +1,5 @@
 
-TICKER = "JPM" #raw_input("Enter Ticker?")
+TICKER = "AAPL" #raw_input("Enter Ticker?")
 TEN_YEAR_TREASURY = 2.902
+PRICES_PULL_START_DATE = "2008-01-01"
+DEBUG = True

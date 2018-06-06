@@ -9,6 +9,7 @@ from Util import Util
 from RetainedEarningsROIC import RetainedEarningsROIC
 from GreenblattROIC import GreenblattROIC
 from DividendsBuyBacks import DividendsBuyBacks
+from HandleStockSplit import HandleStockSplit
 
 #configurations
 intrinio.client.username = 'f51ed99033fc52e3f1743b39c8d43ca6'
@@ -19,6 +20,7 @@ plotData = PlotData(4)
 retainedEarningsROIC = RetainedEarningsROIC()
 greenblattROIC = GreenblattROIC()
 dividendsBuyBacks = DividendsBuyBacks()
+handleStockSplit = HandleStockSplit()
 util = Util()
 
 def dump(df):
@@ -64,13 +66,18 @@ def calcBVPS(incomeStmtData, calculationsData) :
                                                                              "weightedavedilutedsharesos"]
     bookvalue.name = "bookvalue"
     cumulativeData = pd.concat([calculationsData.loc[:, 'bookvaluepershare'],
-                                bookvalue], axis=1)
+                                bookvalue,
+                                incomeStmtData.loc[:, "weightedavedilutedsharesos"]], axis=1)
     cumulativeData = util.dropNaRows(cumulativeData, 'bookvalue')
 
+
     print "--------------- Book Value --------------------------------------------"
-    print "Year      Book Value/Share      Book Value"
+    print "Year      Book Value/Share      Book Value                         Num Shares"
     for index, row in cumulativeData.iterrows():
-        print "{}       ${:0,.2f}             ${:20,.2f}".format(index, row['bookvaluepershare'], row['bookvalue'] )
+        print "{}       ${:0,.2f}             ${:20,.2f}            {:20,.2f}".format(index,
+                                                                                       row['bookvaluepershare'],
+                                                                                       row['bookvalue'],
+                                                                                       row['weightedavedilutedsharesos'])
 
     bvps_growth_rate = util.CAGR(cumulativeData.loc[:, 'bookvaluepershare'].iloc[0],
                                  cumulativeData.loc[:, "bookvaluepershare"].iloc[::-1].iloc[0],
@@ -89,11 +96,13 @@ def calcBVPS(incomeStmtData, calculationsData) :
 
 
 data = liveData.getData(TICKER)
-pricesData = data["prices"]
 incomeStmtData = data["income_statement"]
 balanceSheetData = data["balance_sheet"]
 cashFlowData = data["cash_flow_statement"]
 calculationsData = data["calculations"]
+yearlyPrices = data["yearlyprices"]
+
+yearlyPrices = handleStockSplit.adjustStockSplits(yearlyPrices)
 
 #dump(incomeStmtData)
 #print incomeStmtData.keys()
@@ -112,18 +121,32 @@ calcROE(calculationsData)
 calcEPS(incomeStmtData, calculationsData)
 calcBVPS(incomeStmtData, calculationsData)
 
-# get the latest
-last_price = pricesData.loc[:, "close"].head(1)
-
 if 'nwc' in calculationsData.columns:
     greenblattROIC.calculateGreenblattROIC(calculationsData, incomeStmtData, balanceSheetData)
 
-retainedEarningsROIC.calcIncrementalCapitalROIC(incomeStmtData, balanceSheetData, cashFlowData, last_price)
+retainedEarningsROIC.calcIncrementalCapitalROIC(incomeStmtData, balanceSheetData, cashFlowData)
 
 dividendsBuyBacks.calcDividendBuyBacks(incomeStmtData, balanceSheetData, cashFlowData)
 
 last_eps = incomeStmtData.loc[:, "dilutedeps"].iloc[::-1].head(1)
 last_bvps = calculationsData.loc[:, "bookvaluepershare"].iloc[::-1].head(1)
+
+# get the latest
+last_price = yearlyPrices.loc[:, 'adj_split_close'].head(1)
+first_price = yearlyPrices.loc[:, "adj_split_close"].iloc[::-1].head(1)
+
+share_price_growth_rate = util.CAGR( yearlyPrices.loc[:, "adj_split_close"].iloc[::-1].iloc[0],
+                                     yearlyPrices.loc[:, 'adj_split_close'].iloc[0],
+                                    len(yearlyPrices.loc[:, 'adj_split_close'].index))
+
+
+print "Share Price grew from ${:0,.2f} in {} to ${:0,.2f} in {}".format(first_price.iloc[0],
+                                                                        first_price.index[0],
+                                                                        last_price.iloc[0],
+                                                                        last_price.index[0])
+print "Share Price Growth Rate is {:0,.2f}% over {:0,d} years".format(share_price_growth_rate * 100, len(yearlyPrices.loc[:, 'close'].index))
+
+
 
 print "last_price: $%.2f" % (last_price.iloc[0])
 print "last_eps: $%.2f" % (last_eps.iloc[0])

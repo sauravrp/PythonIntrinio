@@ -9,7 +9,7 @@ class RetainedEarningsROIC(object):
 
     # questions:
     # how does cash buy back figure into retained earnings?
-    def calcIncrementalCapitalROIC(self, incomeStmtData, balanceSheetData, cashFlowData, last_price):
+    def calcIncrementalCapitalROIC(self, incomeStmtData, balanceSheetData, cashFlowData):
         print "--------------- Incremental Capital ROIC based on Retained Earnings --------------------------------------------"
 
         # Calculate Retained earnings per share
@@ -38,13 +38,13 @@ class RetainedEarningsROIC(object):
         print "Year           Net Income (Common)           Retained Earnings      Dividends                     StockBuyBack"
         for index, row in retainedData.iterrows():
             print "{}         ${:20,.2f}      ${:20,.2f}      ${:20,.2f}      ${:20,.2f}".format(index,
-                                                                                                 row[
+                                                                                                 row.loc[
                                                                                                      'netincometocommon'],
-                                                                                                 row[
+                                                                                                 row.loc[
                                                                                                      'retainedearnings'],
-                                                                                                 abs(row[
+                                                                                                 abs(row.loc[
                                                                                                          'paymentofdividends']),
-                                                                                                 abs(row[
+                                                                                                 abs(row.loc[
                                                                                                          'repurchaseofcommonequity']))
 
         print "\nOver {} years,  Total Net Income = ${:5,.2f}, Total Dividend = ${:5,.2f}, Total Stock BuyBack = ${:5,.2f} \n".format(

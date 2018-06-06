@@ -1,6 +1,7 @@
 import intrinio
 import os
 from CacheData import CacheData
+from Globals import PRICES_PULL_START_DATE
 
 class LiveData(object) :
 
@@ -11,10 +12,11 @@ class LiveData(object) :
 
     def getData(self, ticker):
         data = {}
-        dataTag = "prices"
+
+        dataTag = "yearlyprices"
         if not os.path.exists(self.cacheData.filename(ticker, dataTag)):
             print "getting %s data for %s" % (dataTag, ticker)
-            data[dataTag] = intrinio.prices(ticker, start_date="2018-01-01")
+            data[dataTag] = intrinio.prices(ticker, start_date=PRICES_PULL_START_DATE, frequency="yearly")
             self.cacheData.save(data[dataTag], ticker, dataTag)
         else:
             data[dataTag] = self.cacheData.open(ticker, dataTag)
