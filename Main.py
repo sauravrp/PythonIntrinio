@@ -1,7 +1,7 @@
 
 import pandas as pd
 import intrinio
-import numpy as np
+import sys
 
 from Globals import TICKER, TEN_YEAR_TREASURY, DISCOUNT_RATE, STANDARD_PERIOD_PV
 from PlotData import PlotData
@@ -11,6 +11,7 @@ from RetainedEarningsROIC import RetainedEarningsROIC
 from GreenblattROIC import GreenblattROIC
 from DividendsBuyBacks import DividendsBuyBacks
 from SharePrice import SharePrice
+from IntrinsicValueCalc import IntrinsicValueCalc
 
 
 #configurations
@@ -23,11 +24,13 @@ retainedEarningsROIC = RetainedEarningsROIC()
 greenblattROIC = GreenblattROIC()
 dividendsBuyBacks = DividendsBuyBacks()
 sharePrice = SharePrice()
+intrinsicValueCalc = IntrinsicValueCalc()
 util = Util()
 
 def plotGraph(data, col, title, xlabel, ylabel) :
     plotData.plot(data.loc[:, col], title, xlabel, ylabel)
 
+print "------------------- Analysis of {} ---------------------".format(TICKER)
 
 data = liveData.getData(TICKER)
 incomeStmtData = data["income_statement"]
@@ -83,6 +86,7 @@ util.pct_change_stats("Free Cash Flow", calculationsData.loc[:, 'freecashflow'])
 util.average_stats("ROE", calculationsData.loc[:, "roe"] * 100)
 util.average_stats("ROA", calculationsData.loc[:, "roa"] * 100)
 util.average_stats("P/E ratio", calculationsData.loc[:, 'pricetoearnings'])
+util.average_stats("P/B ratio", calculationsData.loc[:, 'pricetobook'])
 
 # Share price Count
 util.pct_change_stats("Weighted Average Diluted Share Outstanding", incomeStmtData.loc[:, 'weightedavedilutedsharesos'])
@@ -109,25 +113,9 @@ print "last book value per share: $%.2f" % (last_bvps.iloc[0])
 print "\nLong term treasury is %s%%" % (str(TEN_YEAR_TREASURY))
 print "Paying $%.2f a share results in %.2f%% return" % (last_price.iloc[0], float(last_eps.iloc[0]/last_price.iloc[0]) * 100)
 
-# Gather Input Parameters
-est_growth_rate = float(raw_input("Enter estimated growth rate? "))
-est_future_pe = int(raw_input("Enter future P/E? "))
-discount_rate = raw_input("Enter discount rate? ")
-if discount_rate == "":
-    discount_rate = float(DISCOUNT_RATE)
-    print "\nUsing default discount rate of {:,.2f}%".format(discount_rate)
-else:
-    discount_rate = float(discount_rate)
 
-# Estimate Future eps
-future_eps = np.fv(rate=float(est_growth_rate/100), nper=int(STANDARD_PERIOD_PV), pmt=0, pv=last_eps.iloc[0]) * -1
-future_share_value = future_eps * est_future_pe
-print "\nFuture eps is ${:,.2f}, future share value at PE of {} is ${:,.2f}".format(future_eps, est_future_pe, future_share_value)
-
-cur_price_to_pay = np.pv(rate=float(discount_rate/100), nper=int(STANDARD_PERIOD_PV), pmt=0, fv=future_share_value) * -1
-print "Discounting at {:,.2f}% rate, current fair value is ${:,.2f}".format(discount_rate, cur_price_to_pay)
-
-
+intrinsicValueCalc.calcValueBasedOnEPS(last_eps.iloc[0])
+# intrinsicValueCalc.calcValueBasedOnBookValueGrowth(last_price.iloc[0], last_bvps.iloc[0], combinedData.loc[:, 'cashdividendpershare'])
 
 
 #plotGraph(incomeStatementData, ["dilutedeps", "basiceps"], "EPS", "$", "Years")
@@ -142,11 +130,24 @@ print "Discounting at {:,.2f}% rate, current fair value is ${:,.2f}".format(disc
 #plotData.plot(calculationsData.loc[:, ['roe']] * 100,  "Return on Equity", "%", "Years")
 #plotData.show()
 
+sys.exit()
 
 
 
 
+# things to do
+# model equity growth per roe (buffetology)
+# refer to pat dorsey book for capex, freecash flow items, (general scan)
+# calculate fcf, owner carnings
+# maintcapex, growth in capex (bruce greenwald)
+# capex % of sales (refer bruce greenwald)
+# how about price to book ratios? -> done
 
-
+# references
+# intrinio docs
+# data feed tags http://docs.intrinio.com/tags/intrinio-public#industrial
+# http://docs.intrinio.com/?javascript--api#company-news
+# quantopian dataframe and series tutorial https://www.quantopian.com/lectures/introduction-to-pandas
+# running the five largest firms with no equity capital
 
 

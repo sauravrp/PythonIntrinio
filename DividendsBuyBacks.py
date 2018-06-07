@@ -59,4 +59,9 @@ class DividendsBuyBacks(object):
         for index, row in retainedData.iterrows():
             print "{}         ${:0,.2f}".format(index, row['cashdividendspershare'])
         print "Total Dividend payout of ${:0,.2f}".format(retainedData['cashdividendspershare'].sum())
+        payoutRatio = retainedData.loc[:,'cashdividendspershare'].sum() / retainedData.loc[:,'dilutedeps'].sum()
+        print payoutRatio
+        print "Total Dividend payout as percent of earnings is {:0,.2f}%".format(payoutRatio*100)
+        print "Total Retained ratio is {:0,.2f}%".format(float(1.0 - payoutRatio) * 100)
+
         print "------------------------------------------------------------------------------\n"
