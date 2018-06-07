@@ -53,18 +53,21 @@ class RetainedEarningsROIC(object):
             abs(retainedData['paymentofdividends'].sum()),
             abs(retainedData['repurchaseofcommonequity'].sum()))
 
-        diffRE = self.util.calculateDelta(retainedData['retainedearnings'])
 
-        diffIncome = self.util.calculateDelta(retainedData['netincometocommon'])
+        diffRE = self.util.calculateDelta(retainedData.loc[:,'retainedearnings'])
 
-        diffEPS = self.util.calculateDelta(retainedData['dilutedeps'])
+        diffIncome = self.util.calculateDelta(retainedData.loc[:,'netincometocommon'])
 
-        diffREpershare = self.util.calculateDelta(retainedData['retainedearningspershare'])
+        diffEPS = self.util.calculateDelta(retainedData.loc[:,'dilutedeps'])
+
+        diffREpershare = self.util.calculateDelta(retainedData.loc[:,'retainedearningspershare'])
 
         incrementCapitalROIC = (diffIncome / diffRE)
 
-        reinvestmentRate = (diffRE / retainedData['netincometocommon'].sum())
+        reinvestmentRate = (diffRE / retainedData.loc[:,'netincometocommon'].sum())
 
+
+        print "Total Net Income over {} years was ${:0,.2f}".format(len(retainedData.loc[:, 'netincometocommon'].index), retainedData.loc[:,'netincometocommon'].sum())
         print "Capital Investments (Retained earnings) grew by ${:0,.2f} and net income grew by ${:0,.2f}".format(diffRE, diffIncome)
         print "Return on Incremental Capital Investments (Net Income) is %.2f%%" % (incrementCapitalROIC * 100)
 
@@ -77,4 +80,18 @@ class RetainedEarningsROIC(object):
         print "Diluted earnings per share grew by ${:0,.2f} ".format(diffEPS)
         print "Rate of return on retained earnings per share is %.2f%%\n" % (
                 float(diffEPS / diffREpershare) * 100)
+
+        print "After buybacks, calculations"
+        totalBuyBacks = retainedData.loc[:,'repurchaseofcommonequity'].sum() * -1
+
+        print "Total buy backs = {:0,.2f}".format(totalBuyBacks)
+        # diffREafterBuybacks = diffRE - totalBuyBacks
+        # incrementCapitalROICafterBuybacks = (diffIncome / diffREafterBuybacks)
+        # reinvestmentRateAfterBuybacks = (diffREafterBuybacks / retainedData.loc[:, 'netincometocommon'].sum())
+        #
+        # print "After buybacks, Capital Investments (Retained earnings) grew by ${:0,.2f} and net income grew by ${:0,.2f}".format(
+        #     diffREafterBuybacks, diffIncome)
+        # print "After buybacks, Return on Incremental Capital Investments (Net Income) is %.2f%%" % (incrementCapitalROICafterBuybacks * 100)
+        # print "After buybacks, Value Compounding rate of the company is {:0,.2f}%".format(reinvestmentRateAfterBuybacks * incrementCapitalROICafterBuybacks * 100)
+
         print "------------------------------------------------------------------------------\n"

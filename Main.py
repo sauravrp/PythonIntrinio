@@ -56,6 +56,7 @@ cashFlowData.loc[:, 'repurchaseofcommonequity'] = cashFlowData.loc[:, 'repurchas
 # ROIC calculations
 if 'nwc' in calculationsData.columns:
     greenblattROIC.calculateGreenblattROIC(calculationsData, incomeStmtData, balanceSheetData)
+greenblattROIC.calculateGreenblattROIC2(calculationsData, incomeStmtData, balanceSheetData)
 retainedEarningsROIC.calcIncrementalCapitalROIC(incomeStmtData, balanceSheetData, cashFlowData)
 # dividend calculations
 dividendsBuyBacks.calcDividendBuyBacks(incomeStmtData, balanceSheetData, cashFlowData)
@@ -72,6 +73,11 @@ dividendsBuyBacks.calcDividendBuyBacks(incomeStmtData, balanceSheetData, cashFlo
 # Equity Growth
 util.pct_change_stats("Book Value", balanceSheetData.loc[:, 'totalcommonequity'])
 util.pct_change_stats("Book Value Per Share", calculationsData.loc[:, 'bookvaluepershare'])
+
+# LT debt
+
+balanceSheetData.loc[:, 'longtermdebt'] = balanceSheetData.loc[:, 'longtermdebt'].fillna(0)
+util.pct_change_stats("Long-Term Debt", balanceSheetData.loc[:, 'longtermdebt'])
 
 # EPS growth
 util.pct_change_stats("Net Income Available to common",  incomeStmtData.loc[:, 'netincometocommon'])
@@ -113,6 +119,7 @@ print "last book value per share: $%.2f" % (last_bvps.iloc[0])
 print "\nLong term treasury is %s%%" % (str(TEN_YEAR_TREASURY))
 print "Paying $%.2f a share results in %.2f%% return" % (last_price.iloc[0], float(last_eps.iloc[0]/last_price.iloc[0]) * 100)
 
+sys.exit()
 
 intrinsicValueCalc.calcValueBasedOnEPS(last_eps.iloc[0])
 # intrinsicValueCalc.calcValueBasedOnBookValueGrowth(last_price.iloc[0], last_bvps.iloc[0], combinedData.loc[:, 'cashdividendpershare'])
@@ -130,7 +137,7 @@ intrinsicValueCalc.calcValueBasedOnEPS(last_eps.iloc[0])
 #plotData.plot(calculationsData.loc[:, ['roe']] * 100,  "Return on Equity", "%", "Years")
 #plotData.show()
 
-sys.exit()
+
 
 
 
@@ -142,6 +149,19 @@ sys.exit()
 # maintcapex, growth in capex (bruce greenwald)
 # capex % of sales (refer bruce greenwald)
 # how about price to book ratios? -> done
+# manual of dieas indicate to exclude short term debt from current liabilities, relook into this
+
+# run on brookfield asset mgmt, fairfax financial, lecadia national, lowers companies, market corp and white mountains ins (manual of ideas)
+# checkout moody's ,aetna, lmt
+# then run on super investors 13f filings, ideas out of basehit, focus compunding, manual of ideas filings etc
+#
+#A high-quality business typically has several key attributes, including high returns on capital employed, an ability to reinvest capital at a high rate of return, an ability to sustain high rates of return through durable competitive advantage, a balance sheet that affords the company strategic
+
+# flexibility, and a management team that is both capable and shareholder-friendly. An attractive price is easier to gauge, as it typically implies a high yield based on earnings or free cash flow to market value. In rare instances of market distress, high-quality businesses may also trade at a discount to tangible book value.
+#
+# Mihaljevic, John. The Manual of Ideas: The Proven Framework for Finding the Best Value Investments (p. 172). Wiley. Kindle Edition. Mihaljevic, John. The Manual of Ideas: The Proven Framework for Finding the Best Value Investments (p. 172). Wiley. Kindle Edition.
+#
+# checkout hedgefundletters.com
 
 # references
 # intrinio docs
@@ -149,5 +169,22 @@ sys.exit()
 # http://docs.intrinio.com/?javascript--api#company-news
 # quantopian dataframe and series tutorial https://www.quantopian.com/lectures/introduction-to-pandas
 # running the five largest firms with no equity capital
+# print out debt ratios
+# http://basehitinvesting.com/tag/josh-tarasoff/
+# manual of ideas: chapter on greenblatt and the chapter on jockey contains several ratios that are very important
 
+# issues
+# no nwc or current libilities or current assets in BRK.A, short term debt
+# Index([u'aoci', u'cashandequivalents', u'claimsandclaimexpenses',
+#        u'commonequity', u'futurepolicybenefits', u'goodwill',
+#        u'intangibleassets', u'loansandleases', u'longtermdebt',
+#        u'netloansandleases', u'netpremisesandequipment',
+#        u'noncontrollinginterests', u'otherassets', u'otherlongtermliabilities',
+#        u'othershorttermpayables', u'policyholderfunds', u'retainedearnings',
+#        u'timedepositsplaced', u'totalassets', u'totalcommonequity',
+#        u'totalequity', u'totalequityandnoncontrollinginterests',
+#        u'totalliabilities', u'totalliabilitiesandequity',
+#        u'tradingaccountsecurities', u'treasurystock',
+#        u'unearnedpremiumscredit', u'unearnedpremiumsdebit'],
+#       dtype='object')
 

@@ -67,11 +67,11 @@ class Util(object):
     def average_multiyear_stats(self, series):
         # print type(series.max)
         # print series.max
-        print "\nHighest value = {:,.2f}".format(series.max())
-        print "Lowest value = {:,.2f}".format(series.min())
-        print "Median value = {:,.2f}".format(series.median())
-        print "Average of highest and lowest = {:,.2f}\n".format((series.max() + series.min())/2)
-        print "{} year average = {:,.2f}".format(len(series.index) - 1, series.mean())
-        if len(series) >= 5:
-            print "{} year average = {:,.2f}".format(5, series.tail(5).mean() )
-        print "last year value = {:,.2f}".format(series.tail(1).iloc[0])
+        print "\nHighest value = {:,.2f}".format(series.dropna().max())
+        print "Lowest value = {:,.2f}".format(series.dropna().min())
+        print "Median value = {:,.2f}".format(series.dropna().median())
+        print "Average of highest and lowest = {:,.2f}\n".format((series.dropna().max() + series.dropna().min())/2)
+        print "{} year average = {:,.2f}".format(len(series.dropna().index) - 1, series.dropna().mean())
+        if len(series.dropna()) >= 5:
+            print "{} year average = {:,.2f}".format(5, series.dropna().tail(5).mean() )
+        print "last year value = {:,.2f}".format(series.dropna().tail(1).iloc[0])
